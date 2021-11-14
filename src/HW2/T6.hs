@@ -4,6 +4,7 @@
 
 module HW2.T6
   ( Parser (..),
+    ParseError (..),
     runP,
     pChar,
     parseError,
@@ -20,7 +21,7 @@ import HW2.T1 (Annotated (..), Except (..), mapExcept)
 import HW2.T4 (Expr (..), Prim (..))
 import HW2.T5 (ExceptState (..))
 
-data ParseError = ErrorAtPos Natural deriving (Show)
+data ParseError = ErrorAtPos Natural
 
 newtype Parser a = P (ExceptState ParseError (Natural, String) a)
   deriving newtype (Functor, Applicative, Monad)
@@ -107,7 +108,7 @@ parseLow op =
           pSymbol '-' >> parseLow (\x y -> Op (Sub x y)),
           pure id
         ]
-    return (\x -> op x (f (expr (Val 0))))
+    return (\x -> f (op x (expr (Val 0))))
 
 -- | Parser for high priority (*, /).
 parseHigh :: (Expr -> Expr -> Expr) -> Parser (Expr -> Expr)
@@ -131,4 +132,4 @@ pExpr =
 
 -- | Parse (with possible Error) `String` to Expr.
 parseExpr :: String -> Except ParseError Expr
-parseExpr = runP (pExpr <* pEof)
+parseExpr = runP (pExpr <* (pSpace >> pEof))

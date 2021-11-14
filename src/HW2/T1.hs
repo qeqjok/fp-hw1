@@ -40,14 +40,14 @@ data Quad a = Q a a a a
 mapQuad :: (a -> b) -> (Quad a -> Quad b)
 mapQuad f (Q a1 a2 a3 a4) = Q (f a1) (f a2) (f a3) (f a4)
 
-data Annotated e a = a :# e deriving (Show)
+data Annotated e a = a :# e
 
 infix 0 :#
 
 mapAnnotated :: (a -> b) -> (Annotated e a -> Annotated e b)
 mapAnnotated f (a :# e) = f a :# e
 
-data Except e a = Error e | Success a deriving (Show)
+data Except e a = Error e | Success a
 
 mapExcept :: (a -> b) -> (Except e a -> Except e b)
 mapExcept f (Success a) = Success (f a)

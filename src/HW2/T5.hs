@@ -1,5 +1,6 @@
 module HW2.T5
   ( ExceptState (..),
+    EvaluationError(..),
     mapExceptState,
     wrapExceptState,
     joinExceptState,
@@ -45,7 +46,7 @@ instance Applicative (ExceptState e s) where
 instance Monad (ExceptState e s) where
   m >>= f = joinExceptState (fmap f m)
 
-data EvaluationError = DivideByZero deriving (Show)
+data EvaluationError = DivideByZero
 
 op ::
   Expr ->

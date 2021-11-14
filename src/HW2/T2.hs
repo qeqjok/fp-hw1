@@ -103,7 +103,7 @@ wrapExcept :: a -> Except e a
 wrapExcept = Success
 
 wrapPrioritised :: a -> Prioritised a
-wrapPrioritised = High
+wrapPrioritised = Low
 
 wrapStream :: a -> Stream a
 wrapStream x = x :> wrapStream x
