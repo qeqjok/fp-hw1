@@ -1,14 +1,23 @@
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE BlockArguments             #-}
+{-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module HW2.T6
-  ( Parser (..),
+  ( -- * The `Parser` type
+    Parser (..),
+
+    -- * The `ParseError` type
     ParseError (..),
+
+    -- * Function for run `Parser`
     runP,
+
+    -- * Parsers
     pChar,
     parseError,
     pEof,
+
+    -- * Function for parse line to `Expr`
     parseExpr,
   )
 where
@@ -21,6 +30,7 @@ import HW2.T1 (Annotated (..), Except (..), mapExcept)
 import HW2.T4 (Expr (..), Prim (..))
 import HW2.T5 (ExceptState (..))
 
+-- | Data type for exceptions in evaluations.
 data ParseError = ErrorAtPos Natural
 
 newtype Parser a = P (ExceptState ParseError (Natural, String) a)
@@ -32,12 +42,14 @@ runP (P parser) line = mapExcept g (runES parser (0, line))
   where
     g (a :# _) = a
 
--- | Parse one `Char` from line, and
--- increase state counter.
+-- | Parse one `Char` from line, and increase state counter.
+-- If the line is empty, calculations will fail,
+-- otherwise a character is extracted from the head of the line
+-- and the counter is incremented.
 pChar :: Parser Char
 pChar = P $ ES \(pos, s) ->
   case s of
-    [] -> Error (ErrorAtPos pos)
+    []       -> Error (ErrorAtPos pos)
     (c : cs) -> Success (c :# (pos + 1, cs))
 
 -- | Raise error in parser Monad.
@@ -50,7 +62,7 @@ instance Alternative Parser where
     chose (runES l input) (runES r input)
     where
       chose (Error _) a = a
-      chose a _ = a
+      chose a _         = a
 
 instance MonadPlus Parser where
   mzero = empty
@@ -62,7 +74,7 @@ pEof :: Parser ()
 pEof = P $ ES \(pos, s) ->
   case s of
     [] -> Success (() :# (pos, []))
-    _ -> Error (ErrorAtPos pos)
+    _  -> Error (ErrorAtPos pos)
 
 -- | White space parser (for skip).
 pSpace :: Parser ()
